@@ -1,0 +1,68 @@
+body {
+  background-color: rgba(0,0,0,.9);
+  color: #fff;
+  font-size: 14px;
+}
+
+a {
+  color: #fff;
+  opacity: .6;
+  text-decoration: none;
+  transition: opacity .2s linear;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 1;
+    text-decoration: underline;
+  }
+}
+
+h1, h2, h3, h4 {
+  margin: 0;
+}
+
+.track-info-container {
+  align-items: center;
+  display: flex;
+  margin: 25px 20px;
+  max-width: 400px;
+
+  img {
+    border-radius: 50%;
+    width: 75px;
+  }
+}
+
+.song-name {
+  cursor: pointer;
+  font-size: 16px;
+  opacity: .8;
+  text-decoration: none;
+  transition: opacity .2s linear;
+
+  &:hover {
+    opacity: 1;
+    text-decoration: underline;
+  }
+}
+
+.explicit-label {
+  background-color: hsla(0,0%,100%,.6);
+  border-radius: 4px;
+  color: #000;
+  line-height: 1.4;
+  margin-right: 5px;
+  padding: 2px 5px;
+}
+
+.track-data {
+  margin-left: 20px;
+}
+
+.track-information {
+  margin-top: 10px;
+}
+
+.album-image-container img {
+  cursor: pointer;
+}
