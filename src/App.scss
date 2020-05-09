@@ -2,6 +2,7 @@ body {
   background-color: rgba(0,0,0,.9);
   color: #fff;
   font-size: 14px;
+  padding: 40px 0 0;
   width: 500px;
 }
 
@@ -78,7 +79,7 @@ h1, h2, h3, h4 {
 
 .lyrics-section {
   overflow: hidden;
-  padding: 90px 30px 40px;
+  padding: 95px 30px 40px;
 
   .lyrics-container {
     font-size: 20px;
@@ -96,22 +97,26 @@ h1, h2, h3, h4 {
     background-color: gray;
     border-radius: 50%;
     border: none;
-    color: #fff;
     cursor: pointer;
     display: flex;
-    font-size: 30px;
     height: 50px;
     justify-content: center;
     left: 45px;
     opacity: .6;
     position: absolute;
     text-decoration: none;
-    top: 20px;
+    top: 70px;
     transition: opacity .2s linear;
     width: 50px;
 
     &:hover {
       opacity: 1;
+    }
+
+    span {
+      color: #fff;
+      font-size: 30px;
+      height: 40px;
     }
   }
 }
@@ -133,6 +138,35 @@ h1, h2, h3, h4 {
     &:hover {
       background-color: #4bdf80;
     }
+  }
+}
+
+.error-message {
+  font-size: 16px;
+  font-weight: 600;
+  padding: 45px 0;
+  text-align: center;
+}
+
+.message-container {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  height: 30px;
+  line-height: 30px;
+  padding: 10px 0;
+  position: fixed;
+  text-align: center;
+  top: 0;
+  width: 100%;
+  z-index: 1;
+
+  &.success {
+    background-color: #1DB954;
+  }
+
+  &.error {
+    background-color: #eb1e32;
   }
 }
 

@@ -8,12 +8,16 @@ import {
   saveTrack
 } from './components/utils';
 
+const DEFAULT_TITLE = 'Spotify on Youtube';
+
 const INITIAL_STATE = {
   loading: true,
   lyrics: '',
   showLyrics: false,
   tracks: [],
-  tracksFound: false
+  tracksFound: false,
+  message: DEFAULT_TITLE,
+  messageType: 'success'
 };
 
 class App extends Component {
@@ -22,7 +26,6 @@ class App extends Component {
 
     this.state = {
       ...INITIAL_STATE,
-      authorized: false
     };
     this.renderTracks = this.renderTracks.bind(this);
     this.searchTrack = this.searchTrack.bind(this);
@@ -32,20 +35,46 @@ class App extends Component {
     this.handleLoading = this.handleLoading.bind(this);
     this.handleNoTracksFound = this.handleNoTracksFound.bind(this);
     this.renderView = this.renderView.bind(this);
-    this.handleMessage = this.handleMessage.bind(this);
+    this.onMessage = this.onMessage.bind(this);
     this.handleState = this.handleState.bind(this);
     this.scrapeTrack = this.scrapeTrack.bind(this);
     this.handleAuthorization = this.handleAuthorization.bind(this);
+    this.handleMessage = this.handleMessage.bind(this);
+    this.saveTrack = this.saveTrack.bind(this);
   }
 
   authorize() {
     window.open('http://localhost:3000/authorize');
   }
 
+  handleMessage(message, messageType) {
+    this.setState({
+      message,
+      messageType
+    }, () => {
+      setTimeout(() => {
+        this.setState({
+          message: DEFAULT_TITLE,
+          messageType: 'success'
+        });
+      }, 2000);
+    });
+  }
+
+  saveTrack(track) {
+    saveTrack(track)
+      .then((response) => {
+        this.handleMessage('Track saved in your library', 'success');
+      })
+      .catch(() => {
+        this.handleMessage('Couldn\'t save track', 'error');
+      });
+  }
+
   handleAuthorization() {
     const { authorized } = this.state;
 
-    if (!authorized) {
+    if (authorized !== undefined && !authorized) {
       return (
         <div className="login-button-container">
           <button className="btn-login" onClick={this.authorize}>
@@ -60,7 +89,7 @@ class App extends Component {
     return this.state.loading ? <div className="loader">Loading...</div> : null;
   }
 
-  handleMessage(message) {
+  onMessage(message) {
     if (message.action === 'track-found') {
       this.saveState({ currentView: 'spotify-list' });
       this.searchTrack(sanitizeTitle(message.track));
@@ -113,7 +142,9 @@ class App extends Component {
     return (
       <section className="lyrics-section">
         <button className="back-icon" onClick={this.resetView}>
-          &#8249;
+          <span>
+            &#8249;
+          </span>
         </button>
         <div className="lyrics-container">
           {this.state.lyrics}
@@ -124,7 +155,7 @@ class App extends Component {
 
   componentDidMount() {
     if (chrome.tabs !== undefined) {
-      chrome.runtime.onMessage.addListener(this.handleMessage);
+      chrome.runtime.onMessage.addListener(this.onMessage);
       this.handleState();
     }
   }
@@ -132,8 +163,6 @@ class App extends Component {
   searchTrack(trackName) {
     getTrack(trackName).then((response) => {
       if (response.error !== undefined) {
-        console.error('Error', response.error);
-
         this.setState({
           authorized: false,
           loading: false
@@ -146,6 +175,7 @@ class App extends Component {
           tracksFound: response.length ? true : false
         });
       }
+      this.handleMessage(DEFAULT_TITLE, 'success');
     });
   }
 
@@ -169,13 +199,16 @@ class App extends Component {
           lyrics: response.result.track.text,
           showLyrics: true,
           loading: false,
-          tracksFound: true
+          tracksFound: true,
+          authorized: true
         });
 
         this.saveState({
           currentView: 'lyrics',
           track
         });
+      } else {
+        this.handleMessage('Couldn\'t find lyrics', 'error');
       }
     });
   }
@@ -227,7 +260,7 @@ class App extends Component {
       return (
         <div className="track-info-container">
           <div className="album-image-container">
-            <img alt="Album" src={track.album.images[0].url} onClick={() => { saveTrack(track.id) }}/>
+            <img alt="Album" src={track.album.images[0].url} onClick={() => { this.saveTrack(track.id) }}/>
           </div>
           <div className="track-data">
             <a className="song-name" href={track.uri} onClick={this.handleLink}>
@@ -244,9 +277,20 @@ class App extends Component {
     });
   }
 
+  renderMessage() {
+    const { message, messageType } = this.state;
+
+    return (
+      <div className={`message-container ${messageType}`}>
+        {message}
+      </div>
+    );
+  }
+
   render() {
     return (
       <div className="App">
+        {this.renderMessage()}
         {this.handleAuthorization()}
         {this.handleLoading()}
         {this.handleNoTracksFound()}
