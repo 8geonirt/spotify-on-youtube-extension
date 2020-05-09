@@ -2,14 +2,15 @@ body {
   background-color: rgba(0,0,0,.9);
   color: #fff;
   font-size: 14px;
+  width: 500px;
 }
 
 a {
   color: #fff;
+  cursor: pointer;
   opacity: .6;
   text-decoration: none;
   transition: opacity .2s linear;
-  cursor: pointer;
 
   &:hover {
     opacity: 1;
@@ -53,6 +54,14 @@ h1, h2, h3, h4 {
   line-height: 1.4;
   margin-right: 5px;
   padding: 2px 5px;
+
+  &.lyrics {
+    cursor: pointer;
+    display: block;
+    margin-top: 5px;
+    text-align: center;
+    width: 50px;
+  }
 }
 
 .track-data {
@@ -65,4 +74,110 @@ h1, h2, h3, h4 {
 
 .album-image-container img {
   cursor: pointer;
+}
+
+.lyrics-section {
+  overflow: hidden;
+  padding: 90px 30px 40px;
+
+  .lyrics-container {
+    font-size: 20px;
+    height: 400px;
+    line-height: 1.9;
+    overflow-y: scroll;
+    padding: 15px 25px;
+    white-space: pre-wrap;
+    width: 100%;
+  }
+
+  .back-icon {
+    -webkit-appearance: none;
+    align-items: center;
+    background-color: gray;
+    border-radius: 50%;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    font-size: 30px;
+    height: 50px;
+    justify-content: center;
+    left: 45px;
+    opacity: .6;
+    position: absolute;
+    text-decoration: none;
+    top: 20px;
+    transition: opacity .2s linear;
+    width: 50px;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.loader,
+.loader:before,
+.loader:after {
+  -webkit-animation: load1 1s infinite ease-in-out;
+  animation: load1 1s infinite ease-in-out;
+  background: #ffffff;
+  height: 4em;
+  width: 1em;
+}
+
+.loader {
+  -ms-transform: translateZ(0);
+  -webkit-animation-delay: -0.16s;
+  -webkit-transform: translateZ(0);
+  animation-delay: -0.16s;
+  color: #ffffff;
+  font-size: 11px;
+  margin: 88px auto;
+  position: relative;
+  text-indent: -9999em;
+  transform: translateZ(0);
+}
+
+.loader:before,
+.loader:after {
+  content: '';
+  position: absolute;
+  top: 0;
+}
+
+.loader:before {
+  -webkit-animation-delay: -0.32s;
+  animation-delay: -0.32s;
+  left: -1.5em;
+}
+
+.loader:after {
+  left: 1.5em;
+}
+
+@-webkit-keyframes load1 {
+  0%,
+  80%,
+  100% {
+    box-shadow: 0 0;
+    height: 4em;
+  }
+  40% {
+    box-shadow: 0 -2em;
+    height: 5em;
+  }
+}
+
+@keyframes load1 {
+  0%,
+  80%,
+  100% {
+    box-shadow: 0 0;
+    height: 4em;
+  }
+  40% {
+    box-shadow: 0 -2em;
+    height: 5em;
+  }
 }
