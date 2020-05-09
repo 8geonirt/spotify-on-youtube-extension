@@ -8,18 +8,19 @@ import {
   saveTrack
 } from './components/utils';
 
+const INITIAL_STATE = {
+  loading: true,
+  lyrics: '',
+  showLyrics: false,
+  tracks: [],
+  tracksFound: false,
+};
+
 class App extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      tracks: [],
-      lyrics: '',
-      showLyrics: false,
-      tracksFound: false,
-      loading: true
-    }
-
+    this.state = INITIAL_STATE;
     this.renderTracks = this.renderTracks.bind(this);
     this.searchTrack = this.searchTrack.bind(this);
     this.getArtists = this.getArtists.bind(this);
@@ -28,10 +29,22 @@ class App extends Component {
     this.handleLoading = this.handleLoading.bind(this);
     this.handleNoTracksFound = this.handleNoTracksFound.bind(this);
     this.renderView = this.renderView.bind(this);
+    this.handleMessage = this.handleMessage.bind(this);
+    this.handleState = this.handleState.bind(this);
+    this.scrapeTrack = this.scrapeTrack.bind(this);
   }
 
   handleLoading() {
     return this.state.loading ? <div className="loader">Loading...</div> : null;
+  }
+
+  handleMessage(message) {
+    if (message.action === 'track-found') {
+      this.saveState({ currentView: 'spotify-list' });
+      this.searchTrack(sanitizeTitle(message.track));
+    } else {
+      console.error('Track not found');
+    }
   }
 
   handleNoTracksFound() {
@@ -41,6 +54,36 @@ class App extends Component {
 
   renderView() {
     return !this.state.showLyrics ? this.renderTracks() : this.displayLyrics();
+  }
+
+  saveState(state) {
+    chrome.storage.local.set({ state });
+  }
+
+  scrapeTrack() {
+    this.setState({ ...INITIAL_STATE });
+
+    chrome.tabs.query({
+      active: true,
+      currentWindow: true
+    }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id,
+        {action: 'get-track'}
+      );
+    });
+  }
+
+  handleState() {
+    const $this = this;
+    chrome.storage.local.get(['state'], function(result) {
+      const { state: { currentView, track } } = result;
+
+      if (currentView === 'spotify-list' || !Object.keys(result).length) {
+        $this.scrapeTrack();
+      } else {
+        $this.getLyrics(track);
+      }
+    });
   }
 
   displayLyrics() {
@@ -59,20 +102,7 @@ class App extends Component {
   componentDidMount() {
     if (chrome.tabs !== undefined) {
       chrome.runtime.onMessage.addListener(this.handleMessage);
-    }
-    const $this = this;
-    if (chrome.tabs !== undefined) {
-      chrome.tabs.query({
-        active: true,
-        currentWindow: true
-      }, (tabs) => {
-        chrome.tabs.sendMessage(
-          tabs[0].id,
-          {action: 'get-track'}, (response) => {
-            console.log(response);
-            $this.searchTrack(sanitizeTitle(response.track));
-          });
-      });
+      this.handleState();
     }
   }
 
@@ -104,17 +134,28 @@ class App extends Component {
       if (response.result !== undefined) {
         this.setState({
           lyrics: response.result.track.text,
-          showLyrics: true
+          showLyrics: true,
+          loading: false,
+          tracksFound: true
+        });
+
+        this.saveState({
+          currentView: 'lyrics',
+          track
         });
       }
     });
   }
 
   resetView() {
-    this.setState({
-      lyrics: '',
-      showLyrics: false
-    });
+    if (!this.state.tracks.length) {
+      this.scrapeTrack();
+    } else {
+      this.setState({
+        lyrics: '',
+        showLyrics: false
+      });
+    }
   }
 
   handleLink(anchor) {
@@ -146,7 +187,9 @@ class App extends Component {
     return (
       <span
         className="explicit-label lyrics"
-        onClick={() => { this.getLyrics(track) }}>
+        onClick={() => {
+          this.getLyrics(track);
+        }}>
         Lyrics
       </span>
     );
