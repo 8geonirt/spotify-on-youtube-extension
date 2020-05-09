@@ -161,13 +161,7 @@ class App extends Component {
   handleLink(anchor) {
     if (chrome.tabs !== undefined) {
       anchor.preventDefault();
-      chrome.tabs.create({
-        url: anchor.target.href, active: false
-      }, (tab) => {
-        setTimeout(() => {
-          chrome.tabs.remove(tab.id)
-        }, 500);
-      });
+      window.open(anchor.target.href);
     }
   }
 
