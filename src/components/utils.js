@@ -72,7 +72,7 @@ const saveTrack = (trackId) => (new Promise((resolve, reject) => {
     method: 'GET',
     headers
   };
-  const request = new Request(SPOTIFY_URL + `save/${trackId}`, requestOptions);
+  const request = new Request(SPOTIFY_URL + `save_track/${trackId}`, requestOptions);
   fetch(request)
     .then((response) => {
       resolve(response.json());

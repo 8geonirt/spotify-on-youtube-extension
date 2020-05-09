@@ -13,14 +13,17 @@ const INITIAL_STATE = {
   lyrics: '',
   showLyrics: false,
   tracks: [],
-  tracksFound: false,
+  tracksFound: false
 };
 
 class App extends Component {
   constructor(props) {
     super(props);
 
-    this.state = INITIAL_STATE;
+    this.state = {
+      ...INITIAL_STATE,
+      authorized: false
+    };
     this.renderTracks = this.renderTracks.bind(this);
     this.searchTrack = this.searchTrack.bind(this);
     this.getArtists = this.getArtists.bind(this);
@@ -32,6 +35,25 @@ class App extends Component {
     this.handleMessage = this.handleMessage.bind(this);
     this.handleState = this.handleState.bind(this);
     this.scrapeTrack = this.scrapeTrack.bind(this);
+    this.handleAuthorization = this.handleAuthorization.bind(this);
+  }
+
+  authorize() {
+    window.open('http://localhost:3000/authorize');
+  }
+
+  handleAuthorization() {
+    const { authorized } = this.state;
+
+    if (!authorized) {
+      return (
+        <div className="login-button-container">
+          <button className="btn-login" onClick={this.authorize}>
+            Authorize with Spotify
+          </button>
+        </div>
+      );
+    }
   }
 
   handleLoading() {
@@ -48,7 +70,8 @@ class App extends Component {
   }
 
   handleNoTracksFound() {
-    return !this.state.loading && !this.state.tracksFound ?
+    const { loading, tracksFound, authorized } = this.state;
+    return !loading && !tracksFound && authorized ?
       <div className="error-message">No tracks were found</div> : null;
   }
 
@@ -108,11 +131,21 @@ class App extends Component {
 
   searchTrack(trackName) {
     getTrack(trackName).then((response) => {
-      this.setState({
-        tracks: response.length ? response : [],
-        loading: false,
-        tracksFound: response.length ? true : false
-      });
+      if (response.error !== undefined) {
+        console.error('Error', response.error);
+
+        this.setState({
+          authorized: false,
+          loading: false
+        });
+      } else {
+        this.setState({
+          authorized: true,
+          tracks: response.length ? response : [],
+          loading: false,
+          tracksFound: response.length ? true : false
+        });
+      }
     });
   }
 
@@ -214,6 +247,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
+        {this.handleAuthorization()}
         {this.handleLoading()}
         {this.handleNoTracksFound()}
         {this.renderView()}
