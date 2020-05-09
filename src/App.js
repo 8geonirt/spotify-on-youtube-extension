@@ -44,7 +44,7 @@ class App extends Component {
   }
 
   authorize() {
-    window.open('http://localhost:3000/authorize');
+    window.open(`${process.env.API_URL}authorize`);
   }
 
   handleMessage(message, messageType) {

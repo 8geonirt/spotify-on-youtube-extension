@@ -1,6 +1,6 @@
-const SPOTIFY_URL = 'http://localhost:3000/';
-const LYRICS_API_URL = 'https://orion.apiseeds.com/api/music/lyric/'
-const LYRICS_API_TOKEN = 'OdZJTxRcSXNY6njxFn6LPJIpDqVunMetm7RyE0yY8iGyBJgAqqIePyoQY2Mrq881';
+const SPOTIFY_URL = process.env.API_URL;
+const LYRICS_API_URL = process.env.LYRICS_API_URL;
+const LYRICS_API_TOKEN = process.env.LYRICS_API_TOKEN;
 
 const sanitizeTitle = (track) =>  {
   return track.toLowerCase()
