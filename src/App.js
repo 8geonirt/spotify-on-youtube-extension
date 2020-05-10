@@ -41,6 +41,7 @@ class App extends Component {
     this.handleAuthorization = this.handleAuthorization.bind(this);
     this.handleMessage = this.handleMessage.bind(this);
     this.saveTrack = this.saveTrack.bind(this);
+    this.shouldSearchTrack = this.shouldSearchTrack.bind(this);
   }
 
   authorize() {
@@ -91,8 +92,19 @@ class App extends Component {
 
   onMessage(message) {
     if (message.action === 'track-found') {
-      this.saveState({ currentView: 'spotify-list' });
-      this.searchTrack(sanitizeTitle(message.track));
+      chrome.storage.local.get(['state'], (result) => {
+        let { state } = result;
+
+        if (state === undefined) {
+          state = {};
+          state.currentView = 'spotify-list';
+        }
+
+        chrome.storage.local.set({ state }, () => {
+          this.handleState(message.track);
+        });
+      });
+
     } else {
       console.error('Track not found');
     }
@@ -125,15 +137,27 @@ class App extends Component {
     });
   }
 
-  handleState() {
-    const $this = this;
-    chrome.storage.local.get(['state'], function(result) {
-      const { state: { currentView, track } } = result;
+  shouldSearchTrack(state, trackName) {
+    const { currentView, track, scrappedTrack } = state;
+    const isEmptyState = !Object.keys(state).length;
+    const initialView = currentView === 'spotify-list';
+    const differentTrack = track !== undefined && scrappedTrack !== trackName;
 
-      if (currentView === 'spotify-list' || !Object.keys(result).length) {
-        $this.scrapeTrack();
+    return isEmptyState || initialView || differentTrack;
+  }
+
+  handleState(scrappedTrack) {
+    chrome.storage.local.get(['state'], (result) => {
+      const { state: { track } } = result;
+
+      if (this.shouldSearchTrack(result.state, scrappedTrack)) {
+        this.saveState({
+          currentView: 'spotify-list',
+          scrappedTrack
+        });
+        this.searchTrack(sanitizeTitle(scrappedTrack));
       } else {
-        $this.getLyrics(track);
+        this.getLyrics(track);
       }
     });
   }
@@ -156,13 +180,17 @@ class App extends Component {
   componentDidMount() {
     if (chrome.tabs !== undefined) {
       chrome.runtime.onMessage.addListener(this.onMessage);
-      this.handleState();
+      this.scrapeTrack();
     }
   }
 
   searchTrack(trackName) {
     getTrack(trackName).then((response) => {
       if (response.error !== undefined) {
+        if (response.error === 're-authenticate') {
+          this.searchTrack(trackName);
+        }
+
         this.setState({
           authorized: false,
           loading: false
@@ -203,9 +231,11 @@ class App extends Component {
           authorized: true
         });
 
-        this.saveState({
-          currentView: 'lyrics',
-          track
+        chrome.storage.local.get(['state'], (result) => {
+          let { state } = result;
+          state.currentView = 'lyrics';
+          state.track = track;
+          this.saveState(state);
         });
       } else {
         this.handleMessage('Couldn\'t find lyrics', 'error');
@@ -215,7 +245,15 @@ class App extends Component {
 
   resetView() {
     if (!this.state.tracks.length) {
-      this.scrapeTrack();
+      chrome.storage.local.get(['state'], (result) => {
+        let { state } = result;
+        state.currentView = 'spotify-list';
+        state.track = undefined;
+
+        chrome.storage.local.set({ state }, () => {
+          this.scrapeTrack();
+        });
+      });
     } else {
       this.setState({
         lyrics: '',
@@ -255,12 +293,16 @@ class App extends Component {
     );
   }
 
+  albumImage(album) {
+    return album.images !== undefined && album.images.length ? album.images[0].url : null;
+  }
+
   renderTracks() {
     return this.state.tracks.map((track) => {
       return (
         <div className="track-info-container">
           <div className="album-image-container">
-            <img alt="Album" src={track.album.images[0].url} onClick={() => { this.saveTrack(track.id) }}/>
+            <img alt="Album" src={this.albumImage(track.album)} onClick={() => { this.saveTrack(track.id) }}/>
           </div>
           <div className="track-data">
             <a className="song-name" href={track.uri} onClick={this.handleLink}>
