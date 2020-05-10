@@ -173,6 +173,11 @@ class App extends Component {
         <div className="lyrics-container">
           {this.state.lyrics}
         </div>
+        <div className="copyright">
+          {this.state.copyright.artist}<br/>
+          {this.state.copyright.notice}<br/>
+          {this.state.copyright.text}
+        </div>
       </section>
     );
   }
@@ -228,7 +233,8 @@ class App extends Component {
           showLyrics: true,
           loading: false,
           tracksFound: true,
-          authorized: true
+          authorized: true,
+          copyright: response.result.copyright
         });
 
         chrome.storage.local.get(['state'], (result) => {
