@@ -109,6 +109,14 @@ h1, h2, h3, h4 {
     transition: opacity .2s linear;
     width: 35px;
 
+    &::before {
+      color: #fff;
+      content: '‹';
+      font-size: 30px;
+      position: absolute;
+      top: -2px;
+    }
+
     &:hover {
       opacity: 1;
     }

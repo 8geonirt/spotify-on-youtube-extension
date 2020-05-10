@@ -165,11 +165,7 @@ class App extends Component {
   displayLyrics() {
     return (
       <section className="lyrics-section">
-        <button className="back-icon" onClick={this.resetView}>
-          <span>
-            &#8249;
-          </span>
-        </button>
+        <button className="back-icon" onClick={this.resetView}></button>
         <div className="lyrics-container">
           {this.state.lyrics}
         </div>
