@@ -192,10 +192,19 @@ class App extends Component {
           this.searchTrack(trackName);
         }
 
-        this.setState({
-          authorized: false,
-          loading: false
-        });
+        if (response.error === 'Internal Server Error') {
+          this.setState({
+            tracksFound: false,
+            loading: false,
+            authorized: true
+          });
+        } else {
+          this.setState({
+            authorized: false,
+            loading: false
+          });
+        }
+
       } else {
         this.setState({
           authorized: true,
@@ -272,7 +281,7 @@ class App extends Component {
   }
 
   explicitLabel(explicit) {
-    return explicit ? <span className="explicit-label">Explicit</span> : null;
+    return explicit ? <span className="explicit-label">E</span> : null;
   }
 
   albumData(album) {
@@ -304,7 +313,8 @@ class App extends Component {
       return (
         <div className="track-info-container">
           <div className="album-image-container">
-            <img alt="Album" src={this.albumImage(track.album)} onClick={() => { this.saveTrack(track.id) }}/>
+            <img alt="Album" src={this.albumImage(track.album)}/>
+            <span onClick={() => { this.saveTrack(track.id) }}>Save</span>
           </div>
           <div className="track-data">
             <a className="song-name" href={track.uri} onClick={this.handleLink}>
