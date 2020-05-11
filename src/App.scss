@@ -212,6 +212,12 @@ h1, h2, h3, h4 {
   &.error {
     background-color: #eb1e32;
   }
+
+  svg {
+    font-size: 24px;
+    margin: 0 10px;
+    vertical-align: middle;
+  }
 }
 
 .loader,
