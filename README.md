@@ -30,8 +30,6 @@ and fetch the tracks from Spotify where you can do the following operations:
 The following environment variables are required:
 ```
 API_URL=http://localhost:3000/
-LYRICS_API_URL=https://orion.apiseeds.com/api/music/lyric/
-LYRICS_API_TOKEN=121312321321321
 ```
 
 You can obtain a free API Key from [this page](https://orion.apiseeds.com/documentation/lyrics)

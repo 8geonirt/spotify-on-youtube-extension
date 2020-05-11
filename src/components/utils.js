@@ -48,7 +48,7 @@ const getLyrics = (track) => (new Promise((resolve, reject) => {
   };
   const artist = track.artists[0].name;
   const lyricsUrl =
-    `${LYRICS_API_URL}${artist}/${sanitizeTitle(track.name)}?apikey=${LYRICS_API_TOKEN}`;
+    `${SPOTIFY_URL}lyrics?artist=${artist}&track_name=${sanitizeTitle(track.name)}`;
   const request = new Request(lyricsUrl, requestOptions);
   fetch(request)
     .then((response) => {
