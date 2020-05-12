@@ -14,7 +14,6 @@ const sanitizeTitle = (track) =>  {
 const getTrack = (trackName) => (new Promise((resolve, reject) => {
   const headers = {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
     'Accept': 'application/json'
   };
 
@@ -38,7 +37,6 @@ const getTrack = (trackName) => (new Promise((resolve, reject) => {
 const getLyrics = (track) => (new Promise((resolve, reject) => {
   const headers = {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
     'Accept': 'application/json'
   };
 
@@ -63,7 +61,6 @@ const getLyrics = (track) => (new Promise((resolve, reject) => {
 const saveTrack = (trackId) => (new Promise((resolve, reject) => {
   const headers = {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
     'Accept': 'application/json'
   };
 

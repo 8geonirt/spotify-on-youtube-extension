@@ -9,7 +9,8 @@
   "permissions": [
     "storage",
     "activeTab",
-    "http://localhost:3000/*"
+    "http://localhost:3000/*",
+    "https://spotify-on-youtube.herokuapp.com/*"
   ],
   "content_scripts":[
     {
