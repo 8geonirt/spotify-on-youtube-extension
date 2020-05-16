@@ -111,10 +111,38 @@ class App extends Component {
           this.handleState(message.track);
         });
       });
+    } else if (message.action === 'track-fetched') {
+      if (message.response.error !== undefined) {
+        if (message.response.error === 're-authenticate') {
+          this.searchTrack(message.trackName);
+        }
 
+        if (message.response.error === 'Internal Server Error') {
+          this.setState({
+            tracksFound: false,
+            loading: false,
+            authorized: true
+          });
+        } else {
+          this.setState({
+            authorized: false,
+            loading: false
+          });
+        }
+
+      } else {
+        this.setState({
+          authorized: true,
+          tracks: message.response.length ? message.response : [],
+          loading: false,
+          tracksFound: message.response.length ? true : false
+        });
+      }
+      this.handleMessage(DEFAULT_TITLE, 'success');
     } else {
       console.error('Track not found');
     }
+
   }
 
   handleNoTracksFound() {
@@ -198,34 +226,16 @@ class App extends Component {
   }
 
   searchTrack(trackName) {
-    getTrack(trackName).then((response) => {
-      if (response.error !== undefined) {
-        if (response.error === 're-authenticate') {
-          this.searchTrack(trackName);
+    chrome.tabs.query({
+      active: true,
+      currentWindow: true
+    }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id,
+        {
+          action: 'fetch-track',
+          trackName
         }
-
-        if (response.error === 'Internal Server Error') {
-          this.setState({
-            tracksFound: false,
-            loading: false,
-            authorized: true
-          });
-        } else {
-          this.setState({
-            authorized: false,
-            loading: false
-          });
-        }
-
-      } else {
-        this.setState({
-          authorized: true,
-          tracks: response.length ? response : [],
-          loading: false,
-          tracksFound: response.length ? true : false
-        });
-      }
-      this.handleMessage(DEFAULT_TITLE, 'success');
+      );
     });
   }
 
