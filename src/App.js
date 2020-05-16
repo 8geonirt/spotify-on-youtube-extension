@@ -111,10 +111,38 @@ class App extends Component {
           this.handleState(message.track);
         });
       });
+    } else if (message.action === 'track-fetched') {
+      if (message.response.error !== undefined) {
+        if (message.response.error === 're-authenticate') {
+          this.searchTrack(message.trackName);
+        }
 
+        if (message.response.error === 'Internal Server Error') {
+          this.setState({
+            tracksFound: false,
+            loading: false,
+            authorized: true
+          });
+        } else {
+          this.setState({
+            authorized: false,
+            loading: false
+          });
+        }
+
+      } else {
+        this.setState({
+          authorized: true,
+          tracks: message.response.length ? message.response : [],
+          loading: false,
+          tracksFound: message.response.length ? true : false
+        });
+      }
+      this.handleMessage(DEFAULT_TITLE, 'success');
     } else {
       console.error('Track not found');
     }
+
   }
 
   handleNoTracksFound() {
@@ -155,7 +183,7 @@ class App extends Component {
 
   handleState(scrappedTrack) {
     chrome.storage.local.get(['state'], (result) => {
-      const { state: { track } } = result;
+      const { state: { track, lyrics, copyright } } = result;
 
       if (this.shouldSearchTrack(result.state, scrappedTrack)) {
         this.saveState({
@@ -164,7 +192,14 @@ class App extends Component {
         });
         this.searchTrack(sanitizeTitle(scrappedTrack));
       } else {
-        this.getLyrics(track);
+        this.setState({
+          lyrics,
+          showLyrics: true,
+          loading: false,
+          tracksFound: true,
+          authorized: true,
+          copyright
+        });
       }
     });
   }
@@ -177,9 +212,7 @@ class App extends Component {
           {this.state.lyrics}
         </div>
         <div className="copyright">
-          {this.state.copyright.artist}<br/>
-          {this.state.copyright.notice}<br/>
-          {this.state.copyright.text}
+          {this.state.copyright}<br/>
         </div>
       </section>
     );
@@ -193,34 +226,16 @@ class App extends Component {
   }
 
   searchTrack(trackName) {
-    getTrack(trackName).then((response) => {
-      if (response.error !== undefined) {
-        if (response.error === 're-authenticate') {
-          this.searchTrack(trackName);
+    chrome.tabs.query({
+      active: true,
+      currentWindow: true
+    }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id,
+        {
+          action: 'fetch-track',
+          trackName
         }
-
-        if (response.error === 'Internal Server Error') {
-          this.setState({
-            tracksFound: false,
-            loading: false,
-            authorized: true
-          });
-        } else {
-          this.setState({
-            authorized: false,
-            loading: false
-          });
-        }
-
-      } else {
-        this.setState({
-          authorized: true,
-          tracks: response.length ? response : [],
-          loading: false,
-          tracksFound: response.length ? true : false
-        });
-      }
-      this.handleMessage(DEFAULT_TITLE, 'success');
+      );
     });
   }
 
@@ -239,20 +254,22 @@ class App extends Component {
 
   getLyrics(track) {
     getLyrics(track).then((response) => {
-      if (response.result !== undefined) {
+      if (response.lyrics_id !== undefined) {
         this.setState({
-          lyrics: response.result.track.text,
+          lyrics: response.lyrics_body,
           showLyrics: true,
           loading: false,
           tracksFound: true,
           authorized: true,
-          copyright: response.result.copyright
+          copyright: response.lyrics_copyright
         });
 
         chrome.storage.local.get(['state'], (result) => {
           let { state } = result;
           state.currentView = 'lyrics';
           state.track = track;
+          state.lyrics = response.lyrics_body;
+          state.copyright = response.lyrics_copyright;
           this.saveState(state);
         });
       } else {

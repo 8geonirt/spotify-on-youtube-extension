@@ -9,12 +9,21 @@
   "permissions": [
     "storage",
     "activeTab",
-    "http://localhost:3000/*"
+    "http://localhost:3000/*",
+    "https://spotify-on-youtube.herokuapp.com/*"
   ],
+  "icons": {
+    "64": "/app/assets/icon-app.png"
+  },
   "content_scripts":[
     {
       "matches": ["https://www.youtube.com/*"],
       "js": ["app/main.js"]
     }
-  ]
+  ],
+  "background": {
+    "scripts": [
+      "app/background.js"
+    ]
+  }
 }
