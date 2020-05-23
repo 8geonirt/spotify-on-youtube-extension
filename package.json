@@ -66,8 +66,12 @@
   },
   "scripts": {
     "start": "node scripts/start.js",
-    "build": "node scripts/build.js",
-    "test": "node scripts/test.js"
+    "test": "node scripts/test.js",
+    "prebuild": "rimraf build",
+    "build": "npm-run-all build:*",
+    "build:app": "INLINE_RUNTIME_CHUNK=false node scripts/build",
+    "build:bg": "NODE_ENV=production webpack --config config/background.config.js --mode production ./src/background.js --output ./build/app/background.js",
+    "build:main": "NODE_ENV=production webpack --config config/background.config.js --mode production ./src/main.js --output ./build/app/main.js"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -133,5 +137,11 @@
     "presets": [
       "react-app"
     ]
+  },
+  "devDependencies": {
+    "dotenv-webpack": "^1.8.0",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^3.0.2",
+    "webpack-cli": "^3.3.11"
   }
 }

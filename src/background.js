@@ -1,5 +1,4 @@
-const SPOTIFY_URL = 'https://spotify-on-youtube.herokuapp.com/';
-console.log('fdsfdsfds');
+const SPOTIFY_URL = process.env.API_URL;
 
 const sanitizeTitle = (track) =>  {
   return track.toLowerCase()
