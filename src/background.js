@@ -2,10 +2,10 @@ const SPOTIFY_URL = process.env.API_URL;
 
 const sanitizeTitle = (track) =>  {
   return track.toLowerCase()
-    .replace(/featuring.|ft.|feat./, '%20')
+    .replace(/ featuring. | ft. | feat. /g, ' ')
     .replace(/with lyrics.*$/, '%20')
     .replace(/hd.*|4k.*$/, '')
-    .replace(/ *\([^)]*\) */g, '')
+    .replace(/ *\([^)]*\)*/g, ' ')
     .replace(/new video/g, '')
     .replace(/\[.*?\]/, '');
 };
@@ -22,7 +22,8 @@ const fetchTrack = (trackName) => (new Promise((resolve, reject) => {
     headers
   };
 
-  const request = new Request(`${SPOTIFY_URL}track_info?name=${sanitizeTitle(trackName)}`, requestOptions);
+  const sanitizedName = sanitizeTitle(trackName);
+  const request = new Request(`${SPOTIFY_URL}track_info?name=${sanitizedName}`, requestOptions);
   fetch(request)
     .then((response) => {
       return response.json();
@@ -38,8 +39,6 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 chrome.runtime.onMessage.addListener((message, callback) => {
-  console.log('message', message);
-
   if (message.action === 'track-found') {
     fetchTrack(message.track).then((response) => {
       chrome.runtime.sendMessage({
