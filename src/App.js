@@ -212,7 +212,9 @@ class App extends Component {
           {this.state.lyrics}
         </div>
         <div className="copyright">
-          {this.state.copyright}<br/>
+          {this.state.copyright.artist}<br/>
+          {this.state.copyright.notice}<br/>
+          {this.state.copyright.text}<br/>
         </div>
       </section>
     );
@@ -254,22 +256,25 @@ class App extends Component {
 
   getLyrics(track) {
     getLyrics(track).then((response) => {
-      if (response.lyrics_id !== undefined) {
+      if (response.result !== undefined) {
+        const { result } = response;
+        const lyrics = result.track.text;
+        const copyright = result.copyright;
         this.setState({
-          lyrics: response.lyrics_body,
+          lyrics,
           showLyrics: true,
           loading: false,
           tracksFound: true,
           authorized: true,
-          copyright: response.lyrics_copyright
+          copyright
         });
 
         chrome.storage.local.get(['state'], (result) => {
           let { state } = result;
           state.currentView = 'lyrics';
           state.track = track;
-          state.lyrics = response.lyrics_body;
-          state.copyright = response.lyrics_copyright;
+          state.lyrics = lyrics;
+          state.copyright = copyright;
           this.saveState(state);
         });
       } else {
