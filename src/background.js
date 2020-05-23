@@ -2,8 +2,8 @@ const SPOTIFY_URL = process.env.API_URL;
 
 const sanitizeTitle = (track) =>  {
   return track.toLowerCase()
-    .replace(/featuring.*|ft.*|feat.*$/, '')
-    .replace(/with lyrics.*$/, '')
+    .replace(/featuring.|ft.|feat./, '%20')
+    .replace(/with lyrics.*$/, '%20')
     .replace(/hd.*|4k.*$/, '')
     .replace(/ *\([^)]*\) */g, '')
     .replace(/new video/g, '')
