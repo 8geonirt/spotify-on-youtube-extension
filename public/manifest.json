@@ -9,8 +9,6 @@
   "content_security_policy": "script-src 'self' 'sha256-5As4+3YpY62+l38PsxCEkjB1R4YtyktBtRScTJ3fyLU='; object-src 'self'",
   "permissions": [
     "storage",
-    "activeTab",
-    "http://localhost:3000/*",
     "https://spotify-on-youtube.herokuapp.com/*"
   ],
   "icons": {
