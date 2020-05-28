@@ -9,10 +9,14 @@
   "content_security_policy": "script-src 'self' 'sha256-5As4+3YpY62+l38PsxCEkjB1R4YtyktBtRScTJ3fyLU='; object-src 'self'",
   "permissions": [
     "storage",
-    "https://spotify-on-youtube.herokuapp.com/*"
+    "https://spotify-on-youtube.herokuapp.com/*",
+    "http://localhost:3000/*"
   ],
   "icons": {
-    "64": "/app/assets/icon-app.png"
+    "128": "/app/assets/128icon.png",
+    "48": "/app/assets/48icon.png",
+    "32": "/app/assets/32icon.png",
+    "16": "/app/assets/16icon.png"
   },
   "content_scripts":[
     {
