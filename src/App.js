@@ -1,9 +1,10 @@
 /* global chrome */
 import React, { Component } from 'react';
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { fab } from '@fortawesome/free-brands-svg-icons'
-import { faCheckSquare, faCoffee } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { fab } from '@fortawesome/free-brands-svg-icons';
+import { faCheckSquare, faCoffee } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import ReactGA from 'react-ga';
 
 import './App.scss';
 import {
@@ -73,9 +74,19 @@ class App extends Component {
     saveTrack(track)
       .then((response) => {
         this.handleMessage('Track saved in your library', 'success');
+        ReactGA.event({
+          category: 'Extension',
+          action: 'Save track',
+          label: 'Success'
+        });
       })
       .catch(() => {
         this.handleMessage('Couldn\'t save track', 'error');
+        ReactGA.event({
+          category: 'Extension',
+          action: 'Save track',
+          label: 'Error'
+        });
       });
   }
 
@@ -131,6 +142,10 @@ class App extends Component {
         }
 
       } else {
+        ReactGA.event({
+          category: 'Extension',
+          action: 'Fetch tracks\' list'
+        });
         this.setState({
           authorized: true,
           tracks: message.response.length ? message.response : [],
@@ -225,9 +240,14 @@ class App extends Component {
       chrome.runtime.onMessage.addListener(this.onMessage);
       this.scrapeTrack();
     }
+    ReactGA.initialize(process.env.GA_ID);
   }
 
   searchTrack(trackName) {
+    ReactGA.event({
+      category: 'Extension',
+      action: 'Search track'
+    });
     chrome.tabs.query({
       active: true,
       currentWindow: true
@@ -255,8 +275,18 @@ class App extends Component {
   }
 
   getLyrics(track) {
+    ReactGA.event({
+      category: 'Extension',
+      action: 'Get lyrics',
+      label: 'Attempt'
+    });
     getLyrics(track).then((response) => {
       if (response.result !== undefined) {
+        ReactGA.event({
+          category: 'Extension',
+          action: 'Get lyrics',
+          label: 'Success'
+        });
         const { result } = response;
         const lyrics = result.track.text;
         const copyright = result.copyright;
