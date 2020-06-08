@@ -1,6 +1,6 @@
 {
   "name": "Youtube + Spotify",
-  "version": "1.0",
+  "version": "1.1",
   "description": "Enjoy saving your current Youtube video song into your Spotify library with a single click, watch and read its lyrics too",
   "manifest_version": 2,
   "browser_action": {
